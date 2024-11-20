@@ -11,7 +11,7 @@ class Day23Test {
 			@AocInputMapping(input = "input.txt", expected = "")
 	})
 	void part1(Stream<String> input, String expected) {
-		String res = "";
+		String res = "res";
 		assertEquals(expected,res);
 	}
 
@@ -21,6 +21,6 @@ class Day23Test {
 			@AocInputMapping(input = "input.txt", expected = "")
 	})
 	void part2(Stream<String> input, String expected) {
-		String res = "";
+		String res = "res";
 		assertEquals(expected,res);
 	}}
