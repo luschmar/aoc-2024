@@ -103,3 +103,5 @@ fabric.properties
 
 .idea
 *.iml
+
+input.txt
