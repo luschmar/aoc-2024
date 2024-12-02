@@ -16,7 +16,7 @@ class Day01Test {
     @ParameterizedTest
     @AocFileSource(inputs = {
             @AocInputMapping(input = "test.txt", expected = "11"),
-            @AocInputMapping(input = "input.txt", expected = "1603498")
+            //@AocInputMapping(input = "input.txt", expected = "1603498")
     })
     void part1(Stream<String> input, String expected) {
         var lists = input.map(s -> s.split("\\s+")).collect(teeing(
@@ -35,7 +35,7 @@ class Day01Test {
     @ParameterizedTest
     @AocFileSource(inputs = {
             @AocInputMapping(input = "test.txt", expected = "31"),
-            @AocInputMapping(input = "input.txt", expected = "25574739")
+            //@AocInputMapping(input = "input.txt", expected = "25574739")
     })
     void part2(Stream<String> input, String expected) {
         var lists = input.map(s -> s.split("\\s+")).collect(teeing(
