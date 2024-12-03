@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static java.lang.Integer.parseInt;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Day02Test {
@@ -40,7 +39,7 @@ class Day02Test {
         assertEquals(Long.parseLong(expected), safe + repairable);
     }
 
-    class Report {
+    static class Report {
 
         private final List<Integer> levels;
         private final List<Integer> diffs;
@@ -67,7 +66,10 @@ class Day02Test {
         }
 
         boolean problemDampenerSafe() {
-            return IntStream.range(0, levels.size()).mapToObj(i -> new Report(removeLevel(i))).anyMatch(Report::isSafe);
+            return IntStream.range(0, levels.size())
+                    .mapToObj(this::removeLevel)
+                    .map(Report::new)
+                    .anyMatch(Report::isSafe);
         }
 
         String removeLevel(int i) {
