@@ -4,6 +4,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import static java.lang.Long.parseLong;
+import static java.lang.Math.multiplyExact;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Day03Test {
@@ -15,9 +17,11 @@ class Day03Test {
 	void part1(Stream<String> input, String expected) {
 		var mul = Pattern.compile("mul\\((\\d{1,3}),(\\d{1,3})\\)");
 
-		var res = input.flatMap(s -> mul.matcher(s).results()).map(a -> Math.multiplyExact(Long.parseLong(a.group(1)), Long.parseLong(a.group(2)))).mapToLong(Long::longValue).sum();
+		var res = input.flatMap(s -> mul.matcher(s).results())
+				.mapToLong(a -> multiplyExact(parseLong(a.group(1)), parseLong(a.group(2))))
+				.sum();
 
-		assertEquals(Long.parseLong(expected), res);
+		assertEquals(parseLong(expected), res);
 	}
 
 	@ParameterizedTest
@@ -41,12 +45,12 @@ class Day03Test {
 						return 0;
 					}
 					if (on.get()) {
-						return Math.multiplyExact(Long.parseLong(a.group(1)), Long.parseLong(a.group(2)));
+						return multiplyExact(parseLong(a.group(1)), parseLong(a.group(2)));
 					}
 					return 0;
 				}
 		).sum();
 
-		assertEquals(Long.parseLong(expected), res);
+		assertEquals(parseLong(expected), res);
 	}
 }
