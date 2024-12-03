@@ -9,7 +9,7 @@ class Day24Test {
 	@ParameterizedTest
 	@AocFileSource(inputs = {
 			@AocInputMapping(input = "test.txt", expected = ""),
-			@AocInputMapping(input = "input.txt", expected = "")
+			@AocInputMapping(input = "https://adventofcode.com/2024/day/24/input", expected = "-1")
 	})
 	void part1(Stream<String> input, String expected) {
 		String res = "res";
@@ -19,7 +19,7 @@ class Day24Test {
 	@ParameterizedTest
 	@AocFileSource(inputs = {
 			@AocInputMapping(input = "test.txt", expected = ""),
-			@AocInputMapping(input = "input.txt", expected = "")
+			@AocInputMapping(input = "https://adventofcode.com/2024/day/24/input", expected = "-1")
 	})
 	void part2(Stream<String> input, String expected) {
 		String res = "res";

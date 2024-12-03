@@ -12,4 +12,6 @@ jobs:
           distribution: 'temurin'
           java-version: '23'
           cache: 'maven'
+        env:
+          AOC_SESSION_COOKIE: ${{ secrets.AOC_SESSION_COOKIE }}
       - run: ./mvnw -q -Dtest=Day06Test test

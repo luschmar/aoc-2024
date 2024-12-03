@@ -104,4 +104,8 @@ fabric.properties
 .idea
 *.iml
 
+# prevent upload of input file
 input.txt
+input.txt.cache
+
+target/
