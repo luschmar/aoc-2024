@@ -1,6 +1,7 @@
 import org.junit.jupiter.params.ParameterizedTest;
 
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -17,7 +18,7 @@ class Day03Test {
 	void part1(Stream<String> input, String expected) {
 		var mul = Pattern.compile("mul\\((\\d{1,3}),(\\d{1,3})\\)");
 
-		var res = input.flatMap(s -> mul.matcher(s).results())
+		var res = input.map(mul::matcher).flatMap(Matcher::results)
 				.mapToLong(a -> multiplyExact(parseLong(a.group(1)), parseLong(a.group(2))))
 				.sum();
 
@@ -33,7 +34,7 @@ class Day03Test {
 		var mul = Pattern.compile("mul\\((\\d{1,3}),(\\d{1,3})\\)|don't\\(\\)|do\\(\\)");
 
 		var on = new AtomicBoolean(true);
-		var res = input.flatMap(s -> mul.matcher(s).results()).mapToLong(a ->
+		var res = input.map(mul::matcher).flatMap(Matcher::results).mapToLong(a ->
 				{
 					var t = a.group(0);
 					if (t.startsWith("do(")) {
