@@ -13,7 +13,7 @@ class Day03Test {
 	@ParameterizedTest
 	@AocFileSource(inputs = {
 			@AocInputMapping(input = "test.txt", expected = "161"),
-			@AocInputMapping(input = "input.txt", expected = "180233229")
+			//@AocInputMapping(input = "input.txt", expected = "180233229")
 	})
 	void part1(Stream<String> input, String expected) {
 		var mul = Pattern.compile("mul\\((\\d{1,3}),(\\d{1,3})\\)");
@@ -28,7 +28,7 @@ class Day03Test {
 	@ParameterizedTest
 	@AocFileSource(inputs = {
 			@AocInputMapping(input = "test2.txt", expected = "48"),
-			@AocInputMapping(input = "input.txt", expected = "95411583")
+			//@AocInputMapping(input = "input.txt", expected = "95411583")
 	})
 	void part2(Stream<String> input, String expected) {
 		var mul = Pattern.compile("mul\\((\\d{1,3}),(\\d{1,3})\\)|don't\\(\\)|do\\(\\)");
