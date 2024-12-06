@@ -18,13 +18,13 @@ class Day05Test {
 		var all = input.toList();
 
 		var printOrderRules = all.stream().map(s -> {
-			if(s.contains("|")){
+			if (s.contains("|")) {
 				return new PageOrderingRule(s);
 			}
 			return null;
 		}).filter(Objects::nonNull).toList();
 		var updates = all.stream().map(s -> {
-			if(s.contains(",")){
+			if (s.contains(",")) {
 				return new Update(s);
 			}
 			return null;
@@ -32,25 +32,25 @@ class Day05Test {
 
 		var sumUpdates = updates.stream().filter(f -> f.isValid(printOrderRules)).mapToLong(Update::middleNumber).sum();
 
-		assertEquals(Long.parseLong(expected),sumUpdates);
+		assertEquals(Long.parseLong(expected), sumUpdates);
 	}
 
 	@ParameterizedTest
 	@AocFileSource(inputs = {
 			@AocInputMapping(input = "test.txt", expected = "123"),
-			@AocInputMapping(input = "https://adventofcode.com/2024/day/5/input", expected = "-1")
+			@AocInputMapping(input = "https://adventofcode.com/2024/day/5/input", expected = "5723")
 	})
 	void part2(Stream<String> input, String expected) {
 		var all = input.toList();
 
 		var printOrderRules = all.stream().map(s -> {
-			if(s.contains("|")){
+			if (s.contains("|")) {
 				return new PageOrderingRule(s);
 			}
 			return null;
 		}).filter(Objects::nonNull).toList();
 		var faultyUpdates = all.stream().map(s -> {
-			if(s.contains(",")){
+			if (s.contains(",")) {
 				return new Update(s);
 			}
 			return null;
@@ -59,7 +59,7 @@ class Day05Test {
 		assertEquals(Long.parseLong(expected), faultyUpdates);
 	}
 
-	class PageOrderingRule{
+	class PageOrderingRule {
 		private final int min;
 		private final int max;
 
@@ -80,13 +80,13 @@ class Day05Test {
 			printOrder = Arrays.stream(update.split(",")).map(Integer::parseInt).toList();
 		}
 
-		long middleNumber(){
+		long middleNumber() {
 			return printOrder.get(printOrder.size() / 2);
 		}
 
 		boolean isValid(List<PageOrderingRule> rules) {
 			return rules.stream().allMatch(v -> {
-				if(printOrder.contains(v.min) && printOrder.contains(v.max)){
+				if (printOrder.contains(v.min) && printOrder.contains(v.max)) {
 					return printOrder.indexOf(v.min) < printOrder.indexOf(v.max);
 				}
 				return true;
