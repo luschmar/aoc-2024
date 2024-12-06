@@ -1,6 +1,8 @@
 import org.junit.jupiter.params.ParameterizedTest;
 
+import java.nio.CharBuffer;
 import java.security.Guard;
+import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -46,24 +48,13 @@ class Day06Test {
 		}
 
 		void printMap() {
-			for(int y = 0; y < map.length; y++) {
-				for(int x = 0; x < map[y].length; x++) {
-					System.out.print(map[y][x]);
-					}
-				System.out.println();
-				}
+			for (char[] line : map) {
+				System.out.println(new String(line));
+			}
 			}
 
-		int countVisited() {
-			int count = 0;
-			for(int y = 0; y < map.length; y++) {
-				for(int x = 0; x < map[y].length; x++) {
-					if(map[y][x] == 'X') {
-						count++;
-					}
-				}
-			}
-			return count;
+		long countVisited() {
+			return Arrays.stream(map).flatMapToInt(c -> CharBuffer.wrap(c).chars()).filter(i -> i == 'X').count();
 		}
 
 		boolean move() {
@@ -152,9 +143,7 @@ class Day06Test {
 	private char[][] copyMap(char[][] map) {
 		char[][] copy = new char[map.length][map[0].length];
 		for(int y = 0; y < map.length; y++) {
-			for(int x = 0; x < map[y].length; x++) {
-				copy[y][x] = map[y][x];
-			}
+			System.arraycopy(map[y], 0, copy[y], 0, map[y].length);
 		}
 		return copy;
 	}
