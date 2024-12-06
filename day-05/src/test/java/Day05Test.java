@@ -3,6 +3,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import java.sql.Array;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,7 +38,7 @@ class Day05Test {
 	@ParameterizedTest
 	@AocFileSource(inputs = {
 			@AocInputMapping(input = "test.txt", expected = "123"),
-			//@AocInputMapping(input = "https://adventofcode.com/2024/day/5/input", expected = "-1")
+			@AocInputMapping(input = "https://adventofcode.com/2024/day/5/input", expected = "-1")
 	})
 	void part2(Stream<String> input, String expected) {
 		var all = input.toList();
@@ -48,21 +49,14 @@ class Day05Test {
 			}
 			return null;
 		}).filter(Objects::nonNull).toList();
-		var updates = all.stream().map(s -> {
+		var faultyUpdates = all.stream().map(s -> {
 			if(s.contains(",")){
 				return new Update(s);
 			}
 			return null;
-		}).filter(Objects::nonNull).toList();
+		}).filter(Objects::nonNull).filter(u -> !u.isValid(printOrderRules)).mapToLong(u -> u.reorder(printOrderRules).middleNumber()).sum();
 
-		var order = new Update(new ArrayList<>());
-		printOrderRules.stream().forEach(r -> {
-			order.insert(printOrderRules, r.min, r.max);
-		});
-
-		var sumUpdates = updates.stream().filter(f -> !f.isValid(printOrderRules)).map(o -> o.reorder(printOrderRules)).mapToLong(Update::middleNumber).sum();
-
-		assertEquals(Long.parseLong(expected),sumUpdates);
+		assertEquals(Long.parseLong(expected), faultyUpdates);
 	}
 
 	class PageOrderingRule{
@@ -100,22 +94,11 @@ class Day05Test {
 		}
 
 		public Update reorder(List<PageOrderingRule> rules) {
-
-			var reorderd = new ArrayList<>(printOrder);
-			var fault = rules.stream().filter(v -> {
-				if(printOrder.contains(v.min) && printOrder.contains(v.max)){
-					return printOrder.indexOf(v.min) > printOrder.indexOf(v.max);
-				}
-				return false;
-			}).toList();
-
-			for(var f : fault) {
-				Collections.swap(reorderd, reorderd.indexOf(f.min), reorderd.indexOf(f.max));
-			}
-
-
-			return new Update(reorderd.stream().map(Object::toString).collect(Collectors.joining(",")));
+			var sorted = new ArrayList<>(printOrder);
+			sorted.sort((o1, o2) -> rules.stream().anyMatch(s -> s.min == o1 && s.max == o2) ? -1 : 1);
+			return new Update(sorted);
 		}
+
 
 		public void insert(List<PageOrderingRule> printOrderRules, int min, int max) {
 			//printOrderRules;
