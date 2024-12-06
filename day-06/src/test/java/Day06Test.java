@@ -127,6 +127,9 @@ class Day06Test {
 		int loopCount = 0;
 		for(int y = 0; y < map.length; y++) {
 			for(int x = 0; x < map[y].length; x++) {
+				if(map[y][x] == '#') {
+					continue;
+				}
 				var copy = copyMap(map);
 				copy[y][x] = '#';
 				var g = new Guard(copy, startX, startY);
@@ -142,9 +145,10 @@ class Day06Test {
 
 	private char[][] copyMap(char[][] map) {
 		char[][] copy = new char[map.length][map[0].length];
-		for(int y = 0; y < map.length; y++) {
-			System.arraycopy(map[y], 0, copy[y], 0, map[y].length);
-		}
+		IntStream.range(0, map.length)
+				.forEach(
+						y -> System.arraycopy(map[y], 0, copy[y], 0, map[y].length)
+				);
 		return copy;
 	}
 }
