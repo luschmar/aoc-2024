@@ -1,7 +1,6 @@
 import org.junit.jupiter.params.ParameterizedTest;
 
 import java.nio.CharBuffer;
-import java.security.Guard;
 import java.util.Arrays;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -21,15 +20,56 @@ class Day06Test {
 		var startX = new String(map[startY]).indexOf("^");
 
 		var g = new Guard(map, startX, startY);
-		while(g.move()) {
+		while (g.move()) {
 		}
+		// only print small map
+		if (map.length < 20) {
+			g.printMap();
+		}
+		assertEquals(Integer.parseInt(expected), g.countVisited());
+	}
 
-		g.printMap();
-		assertEquals(Integer.parseInt(expected),g.countVisited());
+	@ParameterizedTest
+	@AocFileSource(inputs = {
+			@AocInputMapping(input = "test.txt", expected = "6"),
+			@AocInputMapping(input = "https://adventofcode.com/2024/day/6/input", expected = "1688")
+	})
+	void part2(Stream<String> input, String expected) {
+		var map = input.map(String::toCharArray).toArray(char[][]::new);
+
+		var startY = IntStream.range(0, map.length).filter(y -> new String(map[y]).contains("^")).findFirst().getAsInt();
+		var startX = new String(map[startY]).indexOf("^");
+
+		int loopCount = 0;
+		for (int y = 0; y < map.length; y++) {
+			for (int x = 0; x < map[y].length; x++) {
+				if (map[y][x] == '#') {
+					continue;
+				}
+				var copy = copyMap(map);
+				copy[y][x] = '#';
+				var g = new Guard(copy, startX, startY);
+				while (g.move()) {
+				}
+				if (g.isLooped) {
+					loopCount++;
+				}
+			}
+		}
+		assertEquals(Integer.parseInt(expected), loopCount);
+	}
+
+	private char[][] copyMap(char[][] map) {
+		char[][] copy = new char[map.length][map[0].length];
+		IntStream.range(0, map.length)
+				.forEach(
+						y -> System.arraycopy(map[y], 0, copy[y], 0, map[y].length)
+				);
+		return copy;
 	}
 
 	enum Dir {
-		UP,RIGHT,DOWN,LEFT
+		UP, RIGHT, DOWN, LEFT
 	}
 
 	class Guard {
@@ -51,7 +91,7 @@ class Day06Test {
 			for (char[] line : map) {
 				System.out.println(new String(line));
 			}
-			}
+		}
 
 		long countVisited() {
 			return Arrays.stream(map).flatMapToInt(c -> CharBuffer.wrap(c).chars()).filter(i -> i == 'X').count();
@@ -61,18 +101,18 @@ class Day06Test {
 			moves++;
 			var nextX = getNextX();
 			var nextY = getNextY();
-			if(checkOutside(nextX, nextY)) {
+			if (checkOutside(nextX, nextY)) {
 				map[currentY][currentX] = 'X';
 				return false;
 			}
 
-			if(canMove(nextX, nextY)) {
+			if (canMove(nextX, nextY)) {
 				map[currentY][currentX] = 'X';
 				currentX = nextX;
 				currentY = nextY;
 				return true;
 			}
-			currentDir = Dir.values()[(currentDir.ordinal()+1)%4];
+			currentDir = Dir.values()[(currentDir.ordinal() + 1) % 4];
 
 			return true;
 
@@ -83,13 +123,13 @@ class Day06Test {
 		}
 
 		private boolean checkOutside(int nextX, int nextY) {
-			if(nextX < 0 || nextX > map[0].length-1) {
+			if (nextX < 0 || nextX > map[0].length - 1) {
 				return true;
 			}
-			if(nextY < 0 || nextY > map.length-1) {
+			if (nextY < 0 || nextY > map.length - 1) {
 				return true;
 			}
-			if(moves > map[0].length*map.length) {
+			if (moves > map[0].length * map.length) {
 				isLooped = true;
 				return true;
 			}
@@ -99,56 +139,17 @@ class Day06Test {
 		private int getNextX() {
 			return switch (currentDir) {
 				case UP, DOWN -> currentX;
-				case LEFT -> currentX-1;
-				case RIGHT -> currentX+1;
+				case LEFT -> currentX - 1;
+				case RIGHT -> currentX + 1;
 			};
 		}
 
 		private int getNextY() {
 			return switch (currentDir) {
 				case LEFT, RIGHT -> currentY;
-				case UP -> currentY-1;
-				case DOWN -> currentY+1;
+				case UP -> currentY - 1;
+				case DOWN -> currentY + 1;
 			};
 		}
-	}
-
-	@ParameterizedTest
-	@AocFileSource(inputs = {
-			@AocInputMapping(input = "test.txt", expected = "6"),
-			@AocInputMapping(input = "https://adventofcode.com/2024/day/6/input", expected = "1688")
-	})
-	void part2(Stream<String> input, String expected) {
-		var map = input.map(String::toCharArray).toArray(char[][]::new);
-
-		var startY = IntStream.range(0, map.length).filter(y -> new String(map[y]).contains("^")).findFirst().getAsInt();
-		var startX = new String(map[startY]).indexOf("^");
-
-		int loopCount = 0;
-		for(int y = 0; y < map.length; y++) {
-			for(int x = 0; x < map[y].length; x++) {
-				if(map[y][x] == '#') {
-					continue;
-				}
-				var copy = copyMap(map);
-				copy[y][x] = '#';
-				var g = new Guard(copy, startX, startY);
-				while(g.move()) {
-				}
-				if(g.isLooped) {
-					loopCount++;
-				}
-			}
-		}
-		assertEquals(Integer.parseInt(expected),loopCount);
-	}
-
-	private char[][] copyMap(char[][] map) {
-		char[][] copy = new char[map.length][map[0].length];
-		IntStream.range(0, map.length)
-				.forEach(
-						y -> System.arraycopy(map[y], 0, copy[y], 0, map[y].length)
-				);
-		return copy;
 	}
 }
