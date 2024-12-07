@@ -29,41 +29,39 @@ class Day07Test {
         }
 
         boolean valid() {
-            var a = IntStream.range(0, (int) Math.pow(2, numbers.size() - 1))
+            return IntStream.range(0, (int) Math.pow(2, numbers.size() - 1))
+                    .parallel()
                     .mapToObj(i -> String.format("%" + (numbers.size() - 1) + "s",
-                            Integer.toBinaryString(i)).replaceAll("0|\\s", "+").replace("1", "*")).toList();
-
-            return a.stream().map(s -> {
-                long res = numbers.get(0);
-                for (int i = 0; i < s.length(); i++) {
-                    if (s.charAt(i) == '*') {
-                        res *= numbers.get(i + 1);
-                    } else {
-                        res += numbers.get(i + 1);
-                    }
-                }
-                return res;
-            }).anyMatch(l -> l == result);
+                            Integer.toBinaryString(i)).replaceAll("0", "0")).map(s -> {
+                        long res = numbers.getFirst();
+                        for (int i = 0; i < s.length(); i++) {
+                            if (s.charAt(i) == '1') {
+                                res *= numbers.get(i + 1);
+                            } else {
+                                res += numbers.get(i + 1);
+                            }
+                        }
+                        return res;
+                    }).anyMatch(l -> l == result);
         }
 
         boolean valid2() {
-            var a = IntStream.range(0, (int) Math.pow(3, numbers.size() - 1))
+            return IntStream.range(0, (int) Math.pow(3, numbers.size() - 1))
+                    .parallel()
                     .mapToObj(i -> String.format("%" + (numbers.size() - 1) + "s",
-                            Integer.toUnsignedString(i, 3)).replaceAll("0|\\s", "+").replace("1", "*")).toList();
-
-            return a.stream().map(s -> {
-                long res = numbers.get(0);
-                for (int i = 0; i < s.length(); i++) {
-                    if (s.charAt(i) == '*') {
-                        res *= numbers.get(i + 1);
-                    } else if (s.charAt(i) == '+') {
-                        res += numbers.get(i + 1);
-                    } else {
-                        res = Long.parseLong(res + "" + numbers.get(i + 1));
-                    }
-                }
-                return res;
-            }).anyMatch(l -> l == result);
+                            Integer.toUnsignedString(i, 3)).replaceAll("\\s", "0")).map(s -> {
+                        long res = numbers.getFirst();
+                        for (int i = 0; i < s.length(); i++) {
+                            if (s.charAt(i) == '0') {
+                                res *= numbers.get(i + 1);
+                            } else if (s.charAt(i) == '1') {
+                                res += numbers.get(i + 1);
+                            } else {
+                                res = Long.parseLong(res + "" + numbers.get(i + 1));
+                            }
+                        }
+                        return res;
+                    }).anyMatch(l -> l == result);
         }
 
         long getResult() {
