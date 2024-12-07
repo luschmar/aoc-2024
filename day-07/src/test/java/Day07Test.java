@@ -50,10 +50,13 @@ class Day07Test {
         }
 
         boolean valid2() {
-            return IntStream.range(0, (int) Math.pow(3, numbers.size() - 1))
+            return valid() || IntStream.range(0, (int) Math.pow(3, numbers.size() - 1))
                     .parallel()
                     .mapToObj(i -> String.format("%" + (numbers.size() - 1) + "s",
-                            Integer.toUnsignedString(i, 3)).replaceAll("\\s", "0")).map(s -> {
+                            Integer.toUnsignedString(i, 3))
+                            .replaceAll("\\s", "0"))
+                    .filter(f -> f.contains("2")) // try only with || 
+                    .map(s -> {
                         long res = numbers.getFirst();
                         for (int i = 0; i < s.length(); i++) {
                             if (s.charAt(i) == '0') {
