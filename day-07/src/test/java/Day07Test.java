@@ -40,6 +40,10 @@ class Day07Test {
                             } else {
                                 res += numbers.get(i + 1);
                             }
+                            // Overshoot the number; and we will quit.
+                            if(res > result) {
+                                return 0L;
+                            }
                         }
                         return res;
                     }).anyMatch(l -> l == result);
@@ -58,6 +62,10 @@ class Day07Test {
                                 res += numbers.get(i + 1);
                             } else {
                                 res = Long.parseLong(res + "" + numbers.get(i + 1));
+                            }
+                            // Overshoot the number; and we will quit.
+                            if(res > result) {
+                                return 0L;
                             }
                         }
                         return res;
