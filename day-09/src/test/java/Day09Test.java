@@ -1,6 +1,7 @@
 import org.junit.jupiter.params.ParameterizedTest;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -25,19 +26,22 @@ class Day09Test {
             return IntStream.range(0, a).map(m -> -1);
         }).toArray();
 
+        // speedup
+        int lastLeft = 0;
         for (int i = 0; i < disk.length; i++) {
             var right = disk.length - i - 1;
-            var left = IntStream.range(0, disk.length).filter(f -> disk[f] == -1).findFirst().getAsInt();
+            var left = IntStream.range(lastLeft, disk.length).filter(f -> disk[f] == -1).findFirst().getAsInt();
             if (right <= left) {
                 continue;
             }
+            lastLeft = left;
             if (disk[right] >= 0) {
                 disk[left] = disk[right];
                 disk[right] = -1;
             }
         }
 
-        var res = IntStream.range(0, disk.length).mapToLong(i -> disk[i] == -1 ? 0 : disk[i] * i).sum();
+        var res = IntStream.range(0, disk.length).parallel().mapToLong(i -> disk[i] == -1 ? 0 : disk[i] * i).sum();
 
         assertEquals(Long.parseLong(expected), res);
     }
@@ -45,7 +49,7 @@ class Day09Test {
     @ParameterizedTest
     @AocFileSource(inputs = {
             @AocInputMapping(input = "test.txt", expected = "2858"),
-            @AocInputMapping(input = "https://adventofcode.com/2024/day/9/input", expected = "-1")
+            @AocInputMapping(input = "https://adventofcode.com/2024/day/9/input", expected = "6390781891880")
     })
     void part2(Stream<String> input, String expected) {
         var inStr = input.toList().getFirst();
@@ -57,15 +61,17 @@ class Day09Test {
             return IntStream.range(0, a).map(m -> -1);
         }).toArray();
 
+        var leftBlock = new HashMap<Integer, Integer>();
         for (int right = disk.length - 1; right >= 0; right--) {
-			if(disk[right] == -1){
-				continue;
-			}
+            if(disk[right] == -1) {
+                continue;
+            }
             var r = right;
             var right2 = IntStream.range(0, disk.length).filter(f -> disk[f] == disk[r]).findFirst().getAsInt();
             var blocksize = right - right2 + 1;
 
-            var left = IntStream.range(0, disk.length).filter(f -> IntStream.range(f, f + blocksize).allMatch(b -> {
+            var lastLeft = leftBlock.getOrDefault(blocksize, 0);
+            var left = IntStream.range(lastLeft, disk.length).filter(f -> IntStream.range(f, f + blocksize).allMatch(b -> {
                                 if (b >= disk.length) {
                                     return false;
                                 }
@@ -79,10 +85,11 @@ class Day09Test {
                 continue;
             }
             var l = left.getAsInt();
-			if(l >= right2){
-				right = right2;
-				continue;
-			}
+            leftBlock.put(blocksize, l);
+            if(l >= right2){
+                right = right2;
+                continue;
+            }
             IntStream.range(l, l + blocksize).forEach(i -> {
                 disk[i] = disk[r];
             });
@@ -92,7 +99,7 @@ class Day09Test {
             right = right2;
         }
 
-        var res = IntStream.range(0, disk.length).mapToLong(i -> disk[i] == -1 ? 0 : disk[i] * i).sum();
+        var res = IntStream.range(0, disk.length).parallel().mapToLong(i -> disk[i] == -1 ? 0 : disk[i] * i).sum();
 
         assertEquals(Long.parseLong(expected), res);
     }
