@@ -9,138 +9,130 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Day10Test {
-    @ParameterizedTest
-    @AocFileSource(inputs = {
-            @AocInputMapping(input = "test.txt", expected = "36"),
-            @AocInputMapping(input = "https://adventofcode.com/2024/day/10/input", expected = "472")
-    })
-    void part1(Stream<String> input, String expected) {
-        var map = input.map(i -> i.chars().map(a -> a - '0').toArray()).toArray(int[][]::new);
+	@ParameterizedTest
+	@AocFileSource(inputs = {
+			@AocInputMapping(input = "test.txt", expected = "36"),
+			@AocInputMapping(input = "https://adventofcode.com/2024/day/10/input", expected = "472")
+	})
+	void part1(Stream<String> input, String expected) {
+		var map = input.map(i -> i.chars().map(a -> a - '0').toArray()).toArray(int[][]::new);
 
-        var possiblePaths = IntStream.range(0, (int) Math.pow(4, 9))
-                .mapToObj(i -> String.format("%9s", Integer.toUnsignedString(i, 4)).replaceAll(" ", "0"))
-                .filter(s -> !s.contains("02") &&
-                        !s.contains("20") &&
-                        !s.contains("13") &&
-                        !s.contains("31"))
-                .map(s -> s.chars().mapToObj(i -> Dir.values()[i - '0']).toList())
-                .toList();
+		var possiblePaths = generateAllPossiblePaths();
+		var startPoints = findStartPoints(map);
 
-        List<Pos> startPoints = IntStream.range(0, map.length).mapToObj(y -> IntStream.range(0, map[y].length).mapToObj(x -> {
-            if (map[y][x] == 0) {
-                return new Pos(x, y);
-            }
-            return null;
-        }).filter(Objects::nonNull)).flatMap(f -> f).toList();
+		var sum = startPoints.stream()
+				.mapToInt(s -> possiblePaths.stream().map(p -> new Hike(map, s, p))
+						.filter(Hike::isValid).map(h -> h.end).collect(Collectors.toSet()).size()).sum();
 
-        var sum = startPoints.stream()
-                .mapToInt(s -> possiblePaths.stream().map(p -> new Hike(map, s, p))
-                        .filter(h -> h.destinationValue() == 9).map(h -> h.end).collect(Collectors.toSet()).size()).sum();
+		assertEquals(Integer.parseInt(expected), sum);
+	}
 
-        assertEquals(Integer.parseInt(expected), sum);
-    }
+	private List<Pos> findStartPoints(int[][] map) {
+		return IntStream.range(0, map.length).mapToObj(y -> IntStream.range(0, map[y].length).mapToObj(x -> {
+			if (map[y][x] == 0) {
+				return new Pos(x, y);
+			}
+			return null;
+		}).filter(Objects::nonNull)).flatMap(f -> f).toList();
+	}
 
-    @ParameterizedTest
-    @AocFileSource(inputs = {
-            @AocInputMapping(input = "test.txt", expected = "36")
-    }
-    )
-    void debug(Stream<String> input, String expected) {
-        var map = input.map(i -> i.chars().map(a -> a - '0').toArray()).toArray(int[][]::new);
+	@ParameterizedTest
+	@AocFileSource(inputs = {
+			@AocInputMapping(input = "test.txt", expected = "36")
+	}
+	)
+	void debug(Stream<String> input, String expected) {
+		var map = input.map(i -> i.chars().map(a -> a - '0').toArray()).toArray(int[][]::new);
 
-        var h = new Hike(map, new Pos(4, 2), List.of(Dir.NORTH, Dir.WEST, Dir.SOUTH, Dir.SOUTH, Dir.WEST, Dir.WEST, Dir.NORTH, Dir.WEST, Dir.SOUTH));
+		var h = new Hike(map, new Pos(4, 2), List.of(Dir.NORTH, Dir.WEST, Dir.SOUTH, Dir.SOUTH, Dir.WEST, Dir.WEST, Dir.NORTH, Dir.WEST, Dir.SOUTH));
 
-        System.out.println(h.destinationValue());
-    }
+		System.out.println(h.isValid());
+	}
 
-    @ParameterizedTest
-    @AocFileSource(inputs = {
-            @AocInputMapping(input = "test.txt", expected = "81"),
-            @AocInputMapping(input = "https://adventofcode.com/2024/day/10/input", expected = "969")
-    })
-    void part2(Stream<String> input, String expected) {
-        var map = input.map(i -> i.chars().map(a -> a - '0').toArray()).toArray(int[][]::new);
+	@ParameterizedTest
+	@AocFileSource(inputs = {
+			@AocInputMapping(input = "test.txt", expected = "81"),
+			@AocInputMapping(input = "https://adventofcode.com/2024/day/10/input", expected = "969")
+	})
+	void part2(Stream<String> input, String expected) {
+		var map = input.map(i -> i.chars().map(a -> a - '0').toArray()).toArray(int[][]::new);
 
-        var possiblePaths = IntStream.range(0, (int) Math.pow(4, 9))
-                .mapToObj(i -> String.format("%9s", Integer.toUnsignedString(i, 4)).replaceAll(" ", "0"))
-                .filter(s -> !s.contains("02") &&
-                        !s.contains("20") &&
-                        !s.contains("13") &&
-                        !s.contains("31"))
-                .map(s -> s.chars().mapToObj(i -> Dir.values()[i - '0']).toList())
-                .toList();
+		var possiblePaths = generateAllPossiblePaths();
+		var startPoints = findStartPoints(map);
 
-        List<Pos> startPoints = IntStream.range(0, map.length).mapToObj(y -> IntStream.range(0, map[y].length).mapToObj(x -> {
-            if (map[y][x] == 0) {
-                return new Pos(x, y);
-            }
-            return null;
-        }).filter(Objects::nonNull)).flatMap(f -> f).toList();
+		var sum = startPoints.stream()
+				.mapToLong(s -> possiblePaths.stream().map(p -> new Hike(map, s, p))
+						.filter(Hike::isValid).map(h -> h.end).count()).sum();
 
-        var sum = startPoints.stream()
-                .mapToInt(s -> possiblePaths.stream().map(p -> new Hike(map, s, p))
-                        .filter(h -> h.destinationValue() == 9).map(h -> h.end).toList().size()).sum();
+		assertEquals(Integer.parseInt(expected), sum);
+	}
 
-        assertEquals(Integer.parseInt(expected), sum);
-    }
+	private List<List<Dir>> generateAllPossiblePaths() {
+		return IntStream.range(0, (int) Math.pow(4, 9))
+				.mapToObj(i -> String.format("%9s", Integer.toUnsignedString(i, 4)).replaceAll(" ", "0"))
+				.filter(s -> !s.contains("02") &&
+						!s.contains("20") &&
+						!s.contains("13") &&
+						!s.contains("31"))
+				.map(s -> s.chars().mapToObj(i -> Dir.values()[i - '0']).toList())
+				.toList();
+	}
 
-    class Hike {
-        private final int[][] map;
-        private final Pos start;
-        private final Pos end;
-        private final List<Dir> path;
+	enum Dir {
+		NORTH(0, -1),
+		EAST(1, 0),
+		SOUTH(0, 1),
+		WEST(-1, 0);
 
-        Hike(int[][] map, Pos start, List<Dir> path) {
-            this.map = map;
-            this.start = start;
-            this.path = path;
-            this.end = hike();
-        }
+		int x;
+		int y;
 
-        private Pos hike() {
-            var currentPos = start;
-            var height = 0;
-            for (var p : path) {
-                var nextPos = currentPos.move(p);
-                if (nextPos.y() < 0 || nextPos.y() >= map.length) {
-                    return start;
-                }
-                if (nextPos.x() < 0 || nextPos.x() >= map[nextPos.y()].length) {
-                    return start;
-                }
-                if (map[nextPos.y()][nextPos.x()] != height + 1) {
-                    return start;
-                }
-                height++;
+		Dir(int x, int y) {
+			this.x = x;
+			this.y = y;
+		}
+	}
 
-                currentPos = nextPos;
-            }
-            return currentPos;
-        }
+	record Pos(int x, int y) {
+		Pos move(Dir d) {
+			return new Pos(x() + d.x, y() + d.y);
+		}
+	}
 
-        int destinationValue() {
-            return map[end.y()][end.x()];
-        }
-    }
+	class Hike {
+		private final int[][] map;
+		private final Pos start;
+		private final Pos end;
+		private final List<Dir> path;
 
-    record Pos(int x, int y) {
-        Pos move(Dir d) {
-            return new Pos(x() + d.x, y() + d.y);
-        }
-    }
+		Hike(int[][] map, Pos start, List<Dir> path) {
+			this.map = map;
+			this.start = start;
+			this.path = path;
+			this.end = hike();
+		}
 
-    enum Dir {
-        NORTH(0, -1),
-        EAST(1, 0),
-        SOUTH(0, 1),
-        WEST(-1, 0);
+		private Pos hike() {
+			var currentPos = start;
+			var height = 0;
+			for (var p : path) {
+				var nextPos = currentPos.move(p);
+				if (nextPos.y() < 0 || nextPos.y() >= map.length) {
+					return start;
+				}
+				if (nextPos.x() < 0 || nextPos.x() >= map[nextPos.y()].length) {
+					return start;
+				}
+				if (map[nextPos.y()][nextPos.x()] != ++height) {
+					return start;
+				}
+				currentPos = nextPos;
+			}
+			return currentPos;
+		}
 
-        int x;
-        int y;
-
-        Dir(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
+		boolean isValid() {
+			return map[end.y()][end.x()] == 9;
+		}
+	}
 }
