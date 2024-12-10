@@ -89,8 +89,8 @@ class Day10Test {
 		SOUTH(0, 1),
 		WEST(-1, 0);
 
-		int x;
-		int y;
+		final int x;
+		final int y;
 
 		Dir(int x, int y) {
 			this.x = x;
@@ -104,7 +104,7 @@ class Day10Test {
 		}
 	}
 
-	class Hike {
+	static class Hike {
 		private final int[][] map;
 		private final Pos start;
 		private final Pos end;
