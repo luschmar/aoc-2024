@@ -22,7 +22,7 @@ class Day10Test {
 
 		var sum = startPoints.stream()
 				.mapToInt(s -> possiblePaths.stream().map(p -> new Hike(map, s, p))
-						.filter(Hike::isValid).map(h -> h.end).collect(Collectors.toSet()).size()).sum();
+						.filter(Hike::isLongHike).map(h -> h.end).collect(Collectors.toSet()).size()).sum();
 
 		assertEquals(Integer.parseInt(expected), sum);
 	}
@@ -46,7 +46,7 @@ class Day10Test {
 
 		var h = new Hike(map, new Pos(4, 2), List.of(Dir.NORTH, Dir.WEST, Dir.SOUTH, Dir.SOUTH, Dir.WEST, Dir.WEST, Dir.NORTH, Dir.WEST, Dir.SOUTH));
 
-		System.out.println(h.isValid());
+		System.out.println(h.isLongHike());
 	}
 
 	@ParameterizedTest
@@ -62,7 +62,7 @@ class Day10Test {
 
 		var sum = startPoints.stream()
 				.mapToLong(s -> possiblePaths.stream().map(p -> new Hike(map, s, p))
-						.filter(Hike::isValid).map(h -> h.end).count()).sum();
+						.filter(Hike::isLongHike).count()).sum();
 
 		assertEquals(Integer.parseInt(expected), sum);
 	}
@@ -131,7 +131,7 @@ class Day10Test {
 			return currentPos;
 		}
 
-		boolean isValid() {
+		boolean isLongHike() {
 			return map[end.y()][end.x()] == 9;
 		}
 	}
