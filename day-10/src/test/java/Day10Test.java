@@ -1,11 +1,12 @@
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.*;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class Day10Test {
@@ -22,7 +23,7 @@ class Day10Test {
 
 		var sum = startPoints.stream()
 				.mapToInt(s -> possiblePaths.stream().map(p -> new Hike(map, s, p))
-						.filter(Hike::isLongHike).map(h -> h.end).collect(Collectors.toSet()).size()).sum();
+						.filter(Hike::isLongHike).map(h -> h.end).collect(toSet()).size()).sum();
 
 		assertEquals(Integer.parseInt(expected), sum);
 	}
@@ -67,7 +68,11 @@ class Day10Test {
 		assertEquals(Integer.parseInt(expected), sum);
 	}
 
-	private List<List<Dir>> generateAllPossiblePaths() {
+	private Pos getEnd(List<Dir> dirs) {
+		return new Pos(dirs.stream().mapToInt(d -> d.x).sum(),dirs.stream().mapToInt(d -> d.y).sum());
+	}
+
+    private List<List<Dir>> generateAllPossiblePaths() {
 		return IntStream.range(0, (int) Math.pow(4, 9))
 				.mapToObj(i -> String.format("%9s", Integer.toUnsignedString(i, 4)).replaceAll(" ", "0"))
 				.filter(s -> !s.contains("02") &&
@@ -135,4 +140,85 @@ class Day10Test {
 			return map[end.y()][end.x()] == 9;
 		}
 	}
+
+
+	///
+	/// EXPERIMENTAL
+	/// Wanted to implement another Hike Planner;
+	/// #1 generate all paths from 0,0 ordered by ends (done; we get 100 possible hike targets)
+	/// #2 find all 0
+	/// #3 find to every 0 matching 9
+	/// #4 walk from 0 to 9
+	///
+	@Disabled
+	@ParameterizedTest
+	@AocFileSource(inputs = {
+			@AocInputMapping(input = "test.txt", expected = "36"),
+			@AocInputMapping(input = "https://adventofcode.com/2024/day/10/input", expected = "472")
+	})
+	void experiment(Stream<String> input, String expected) {
+		var map = input.map(i -> i.chars().map(a -> a - '0').toArray()).toArray(int[][]::new);
+
+		// #1
+		var pathWithEnds = generateAllPossiblePathsWithEnds();
+		// #2
+		var startPoints = findStartPoints(map);
+
+		var sum = startPoints.stream()
+				.map(start -> new AbstractMap.SimpleEntry<>(start, getPathsToCheck(map, start, pathWithEnds)))
+				.filter(this::isHikable).map(e -> e.getValue().keySet()).collect(toSet()).size();
+
+		//System.out.println(sum);
+		assertEquals(Integer.parseInt(expected), sum);
+	}
+
+	private boolean isHikable(AbstractMap.SimpleEntry<Pos, Map<Pos, Set<List<Dir>>>> endPosWithHike) {
+		for(var possibleHikes : endPosWithHike.getValue().values()){
+		}
+
+		return true;
+	}
+
+	private Map<Pos, Set<List<Dir>>> getPathsToCheck(int[][] map, Pos start, Map<Pos, Set<List<Dir>>> pathWithEnds) {
+		Map<Pos, Set<List<Dir>>> endpointsWithPaths = new HashMap<>();
+		for(var entry : pathWithEnds.entrySet()){
+			var end = new Pos(start.x()+entry.getKey().x(), start.y()+entry.getKey().y());
+			if (end.y() < 0 || end.y() >= map.length) {
+				continue;
+			}
+			if (end.x() < 0 || end.x() >= map[end.y()].length) {
+				continue;
+			}
+			if(map[end.y][end.x] == 9){
+				endpointsWithPaths.put(end, entry.getValue());
+			}
+		}
+		return endpointsWithPaths;
+	}
+
+	private Map<Pos, Set<List<Dir>>> generateAllPossiblePathsWithEnds() {
+		return IntStream.range(0, (int) Math.pow(4, 9))
+				.mapToObj(i -> String.format("%9s", Integer.toUnsignedString(i, 4)).replaceAll(" ", "0"))
+				.filter(s -> !s.contains("02") &&
+						!s.contains("20") &&
+						!s.contains("13") &&
+						!s.contains("31"))
+				.map(s -> s.chars().mapToObj(i -> Dir.values()[i - '0']).toList())
+				.filter(this::nonCyclic)
+				.collect(groupingBy(this::getEnd, toSet()));
+	}
+
+	private boolean nonCyclic(List<Dir> dirs) {
+		var pos = new Pos(0,0);
+		var visited = new HashSet<Pos>();
+		visited.add(pos);
+		for(var d : dirs) {
+			pos = pos.move(d);
+			if(!visited.add(pos)){
+				return false;
+			}
+		}
+		return true;
+	}
+
 }
