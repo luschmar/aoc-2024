@@ -1,10 +1,6 @@
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
@@ -17,10 +13,10 @@ class Day11Test {
 			@AocInputMapping(input = "https://adventofcode.com/2024/day/11/input", expected = "186203")
 	})
 	void part1(Stream<String> input, String expected) {
-		Map<Long, Long> orginal = Arrays.stream(input.findFirst().get().split("\\s"))
+		Map<Long, Long> original = Arrays.stream(input.findFirst().get().split("\\s"))
 				.map(Long::parseLong).collect(toMap(Long::longValue, v -> 1L));
 
-		Map<Long, Long> stones = new TreeMap<>(orginal);
+		Map<Long, Long> stones = new TreeMap<>(original);
 		for (int i = 0; i < 25; i++) {
 			var afterBlink = new TreeMap<Long, Long>();
 			for (var l : new HashSet<>(stones.entrySet())) {
@@ -49,7 +45,6 @@ class Day11Test {
 
 
 		assertEquals(Long.parseLong(expected), stones.values().stream().mapToLong(Long::longValue).sum());
-
 	}
 
 	@ParameterizedTest
@@ -57,10 +52,10 @@ class Day11Test {
 			@AocInputMapping(input = "https://adventofcode.com/2024/day/11/input", expected = "221291560078593")
 	})
 	void part2(Stream<String> input, String expected) {
-		Map<Long, Long> orginal = Arrays.stream(input.findFirst().get().split("\\s"))
+		Map<Long, Long> original = Arrays.stream(input.findFirst().get().split("\\s"))
 				.map(Long::parseLong).collect(toMap(Long::longValue, v -> 1L));
 
-		Map<Long, Long> stones = new TreeMap<>(orginal);
+		Map<Long, Long> stones = new TreeMap<>(original);
 		for (int i = 0; i < 75; i++) {
 			var afterBlink = new TreeMap<Long, Long>();
 			for (var l : new HashSet<>(stones.entrySet())) {
@@ -90,13 +85,4 @@ class Day11Test {
 
 		assertEquals(Long.parseLong(expected), stones.values().stream().mapToLong(Long::longValue).sum());
 	}
-
-	@Test
-	void blinkTester() {
-		var a = Arrays.stream("0 1 10 99 999".split("\\s")).map(Long::parseLong).toList();
-
-		System.out.println(a.size());
-	}
-
-
 }
