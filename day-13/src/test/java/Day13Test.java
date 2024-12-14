@@ -17,7 +17,7 @@ class Day13Test {
 	@ParameterizedTest
 	@AocFileSource(inputs = {
 			@AocInputMapping(input = "test.txt", expected = "480"),
-			@AocInputMapping(input = "edge.txt", expected = "285"),
+			@AocInputMapping(input = "edge.txt", expected = "383"),
 			@AocInputMapping(input = "https://adventofcode.com/2024/day/13/input", expected = "37128")
 	})
 	void part1(Stream<String> input, String expected) {
@@ -161,7 +161,7 @@ class Day13Test {
 	@ParameterizedTest
 	@AocFileSource(inputs = {
 			@AocInputMapping(input = "test.txt", expected = "480"),
-			@AocInputMapping(input = "edge.txt", expected = "285"),
+			@AocInputMapping(input = "edge.txt", expected = "383"),
 			@AocInputMapping(input = "https://adventofcode.com/2024/day/13/input", expected = "37128")
 	})
 	void runPart1(Stream<String> input, String expected) {
