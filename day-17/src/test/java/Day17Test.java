@@ -15,7 +15,7 @@ class Day17Test {
 	@ParameterizedTest
 	@AocFileSource(inputs = {
 			@AocInputMapping(input = "test.txt", expected = "4,6,3,5,6,3,5,2,1,0"),
-			@AocInputMapping(input = "https://adventofcode.com/2024/day/17/input", expected = "-1")
+			@AocInputMapping(input = "https://adventofcode.com/2024/day/17/input", expected = "4,1,5,3,1,5,3,5,7")
 	})
 	void part1(Stream<String> input, String expected) {
 		var inputList = input.toList();
@@ -32,9 +32,9 @@ class Day17Test {
 	}
 
 	class ThreeBitComputer {
-		private int registerA;
-		private int registerB;
-		private int registerC;
+		private long registerA;
+		private long registerB;
+		private long registerC;
 
 		private int instPointer;
 
@@ -42,7 +42,7 @@ class Day17Test {
 
 		private List<Integer> program;
 
-		ThreeBitComputer(int A, int B, int C, List<Integer> program){
+		ThreeBitComputer(long A, long B, long C, List<Integer> program){
 			this.registerA = A;
 			this.registerB = B;
 			this.registerC = C;
@@ -56,57 +56,58 @@ class Day17Test {
 		}
 
 		void exec(int opcode, int operand) {
+			//System.out.printf("%-10d %-30s %-10d %-10d%n", instPointer, Long.toBinaryString(registerA), registerB, registerC);
+			//System.out.println(out);
 			switch (opcode){
-				case 0 -> adv(opcode, operand);
-				case 1 -> bxl(opcode, operand);
-				case 2 -> bst(opcode, operand);
-				case 3 -> jnz(opcode, operand);
-				case 4 -> bxc(opcode, operand);
-				case 5 -> out(opcode, operand);
-				case 6 -> bdv(opcode, operand);
-				case 7 -> cdv(opcode, operand);
+				case 0 -> adv(operand);
+				case 1 -> bxl(operand);
+				case 2 -> bst(operand);
+				case 3 -> jnz(operand);
+				case 4 -> bxc();
+				case 5 -> out(operand);
+				case 6 -> bdv(operand);
+				case 7 -> cdv(operand);
 				default -> new IllegalArgumentException();
 			}
 			instPointer += 2 ;
 		}
 
-		private void cdv(int opcode, int operand) {
-			registerC = Math.divideExact(registerA, (int)Math.pow(2, resolveComboOperand(operand)));
-
+		private void cdv(int operand) {
+			registerC = Math.divideExact(registerA, (long)Math.pow(2, resolveComboOperand(operand)));
 		}
 
-		private void bdv(int opcode, int operand) {
-			registerB = Math.divideExact(registerA, (int)Math.pow(2, resolveComboOperand(operand)));
+		private void bdv(int operand) {
+			registerB = Math.divideExact(registerA, (long)Math.pow(2, resolveComboOperand(operand)));
 		}
 
-		private void out(int opcode, int operand) {
-			out.add(resolveComboOperand(operand) % 8);
+		private void out(int operand) {
+			out.add((int)(resolveComboOperand(operand) % 8L));
 		}
 
-		private void bxc(int opcode, int operand) {
+		private void bxc() {
 			registerB = registerB ^ registerC;
 		}
 
-		private void jnz(int opcode, int operand) {
+		private void jnz(int operand) {
 			if(registerA == 0){
 				return;
 			}
 			instPointer = operand-2;
 		}
 
-		private void bst(int opcode, int operand) {
-			registerB = resolveComboOperand(operand) % 8;
+		private void bst(int operand) {
+			registerB = resolveComboOperand(operand) % 8L;
 		}
 
-		private void bxl(int opcode, int operand) {
+		private void bxl(int operand) {
 			registerB = registerB ^ operand;
 		}
 
-		private void adv(int opcode, int operand) {
+		private void adv(int operand) {
 			registerA = Math.divideExact(registerA, (int)Math.pow(2, resolveComboOperand(operand)));
 		}
 
-		private int resolveComboOperand(int operand) {
+		private long resolveComboOperand(int operand) {
 			return switch (operand){
 				case 0,1,2,3 -> operand;
 				case 4 -> registerA;
@@ -121,7 +122,6 @@ class Day17Test {
 	@CsvSource(value = {
 			//"0 0 9 2,6",
 			"10 0 0 5,0,5,1,5,4"
-
 	}, delimiter = ' ')
 	void test(String a, String b, String c, String program){
 		var iA = Integer.parseInt(a);
@@ -137,24 +137,40 @@ class Day17Test {
 
 	@ParameterizedTest
 	@AocFileSource(inputs = {
-			@AocInputMapping(input = "test.txt", expected = "117440"),
-			//@AocInputMapping(input = "https://adventofcode.com/2024/day/17/input", expected = "-1")
+			//@AocInputMapping(input = "test.txt", expected = "117440"),
+			@AocInputMapping(input = "https://adventofcode.com/2024/day/17/input", expected = "-1")
 	})
 	void part2(Stream<String> input, String expected) {
 		var inputList = input.toList();
 
-		var a = Integer.parseInt(inputList.get(0).replaceAll("Register A: ", ""));
+		//min
+		//var a = 35184372088832L;
+
+
 		var b = Integer.parseInt(inputList.get(1).replaceAll("Register B: ", ""));
 		var c = Integer.parseInt(inputList.get(2).replaceAll("Register C: ", ""));
 		var program = Arrays.stream(inputList.get(4).replaceAll("Program: ", "").split(",")).map(Integer::parseInt).toList();
 
-		var res = IntStream.range(0, Integer.MAX_VALUE).parallel().filter(aa -> {
-			var computer = new ThreeBitComputer(a, b, c, program);
-			computer.run();
 
-			return IntStream.range(0, program.size()).allMatch(ii -> program.get(ii) == computer.out.get(ii));
-		}).min().getAsInt();
+		long res = 1L << (program.size()-1L) *3L;
+		for(int p = 0; p < program.size(); p++) {
+			for(long i = 1; i < 8; i++){
+				var candidate = i << ((program.size()-p-1L)*3L);
+				candidate += res;
+				System.out.println("res:  %50s".formatted(Long.toBinaryString(res)));
+				System.out.println("cand: %50s".formatted(Long.toBinaryString(candidate)));
+				var computer = new ThreeBitComputer(candidate, b, c, program);
+				computer.run();
 
-		assertEquals(Integer.parseInt(expected), res);
+				if(IntStream.range(0, p).allMatch(k -> program.reversed().get(k).equals(computer.out.reversed().get(k)))){
+					System.out.println(candidate);
+					res = Math.min(res, candidate);
+				}
+			}
+
+		}
+
+		assertEquals(Long.parseLong(expected), res);
 	}
+
 }
